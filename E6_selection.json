@@ -1,0 +1,12 @@
+{
+  "selected_experiment": "E1_Standard_Logistic_Regression",
+  "selected_threshold": 0.230068558514513,
+  "selection_metric": "validation_binary_f1",
+  "validation_year": 2025,
+  "models_compared": [
+    "E1_Standard_Logistic_Regression",
+    "E2_Random_Forest",
+    "E3_Gradient_Boosting",
+    "E4_SVM"
+  ]
+}

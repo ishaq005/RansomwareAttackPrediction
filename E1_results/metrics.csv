@@ -1,0 +1,2 @@
+true_positives,false_positives,false_negatives,true_negatives,precision,recall,f1,binary_accuracy,balanced_accuracy,average_precision,roc_auc,five_status_accuracy,five_status_macro_f1
+19,20,153,6145,0.48717948717948717,0.11046511627906977,0.18009478672985782,0.9727000157803377,0.5536104981233143,0.2339353476189066,0.8657872649427564,0.9727000157803377,0.8126137495522873

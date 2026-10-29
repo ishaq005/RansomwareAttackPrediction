@@ -1,0 +1,5 @@
+partition,attack_week,active,declining,dormant,inactive
+excluded_early,5,51,99,152,232
+test,200,467,735,1602,3298
+train,275,787,1256,2915,3025
+validation,172,522,870,1804,2969

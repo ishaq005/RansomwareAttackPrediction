@@ -1,0 +1,2 @@
+model,TP,FP,FN,TN,precision,recall,F1,accuracy,average_precision,ROC_AUC,five_status_accuracy,five_status_macro_F1
+E4_balanced_RBF_SVM,0,0,172,6165,0.0,0.0,0.0,0.9728578191573299,0.07898085521588519,0.7951503234689451,0.9728578191573299,0.7773681276982927

@@ -1,0 +1,36 @@
+{
+  "panel_rows": 21632,
+  "labelled_rows": 21436,
+  "unlabelled_final_rows": 196,
+  "unique_groups": 196,
+  "audit_passed": true,
+  "errors": [],
+  "warnings": [
+    "Source collection/publication-time availability cannot be verified from this 10-column panel.",
+    "Financial-sector classification and duplicate adjudication require incident-level source review.",
+    "The 2026 test set must not be used for model or threshold selection.",
+    "No models trained; these are provisional modelling partitions."
+  ],
+  "partition_counts": [
+    {
+      "partition": "test",
+      "observations": 6302,
+      "posting_weeks": 200
+    },
+    {
+      "partition": "train",
+      "observations": 8258,
+      "posting_weeks": 275
+    },
+    {
+      "partition": "validation",
+      "observations": 6337,
+      "posting_weeks": 172
+    },
+    {
+      "partition": "excluded_early",
+      "observations": 539,
+      "posting_weeks": 5
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+partition,observations,groups,posting_weeks,first_target_week,last_target_week,posting_rate_pct
+test,6302,194,200,2026-01-05,2026-09-21,3.174
+train,8258,100,275,2022-01-03,2024-12-30,3.33
+validation,6337,146,172,2025-01-06,2025-12-29,2.714
+excluded_early,539,14,5,2017-05-15,2021-12-27,0.928
