@@ -1,7 +1,3 @@
-"""Stage 3 chronological audit and partitioning. Run Python File in VS Code.
-Place weekly_status_prediction_panel.csv alongside this script.
-No model is trained; the 2026 test labels must remain untouched in model selection.
-"""
 from pathlib import Path
 import json
 import pandas as pd
