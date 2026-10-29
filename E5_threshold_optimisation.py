@@ -1,6 +1,3 @@
-"""E5: Select the best F1 threshold using ONLY 2025 validation predictions.
-Run with VS Code 'Run Python File'. No command-line arguments needed.
-"""
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -11,7 +8,6 @@ INPUT = FOLDER / 'validation_predictions_four_models.csv'
 OUTPUT = FOLDER / 'results'
 OUTPUT.mkdir(exist_ok=True)
 
-# These are the NEW experiment names, not the historical numbering.
 MODELS = ['E1_Standard_Logistic_Regression', 'E2_Random_Forest',
           'E3_Gradient_Boosting', 'E4_SVM']
 
@@ -38,7 +34,6 @@ for name in MODELS:
     if not np.isin(y, [0, 1]).all() or not np.isfinite(p).all() or ((p < 0) | (p > 1)).any():
         raise ValueError(f'{name}: invalid target or probability')
 
-    # Candidate thresholds come from the validation precision-recall curve.
     precision, recall, thresholds = precision_recall_curve(y, p)
     f1_values = np.divide(2 * precision[:-1] * recall[:-1],
                           precision[:-1] + recall[:-1],

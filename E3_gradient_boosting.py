@@ -1,4 +1,3 @@
-"""E3: weighted gradient boosting. Run with VS Code 'Run Python File'."""
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -11,14 +10,12 @@ from sklearn.metrics import (confusion_matrix, precision_score, recall_score,
     f1_score, accuracy_score, balanced_accuracy_score,
     average_precision_score, roc_auc_score)
 
-# 1. Load fixed chronological partitions. Never use the 2026 test set here.
 folder = Path(__file__).resolve().parent
 train = pd.read_csv(folder / 'train.csv')
 validation = pd.read_csv(folder / 'validation.csv')
 assert set(train['target_year']) == {2022, 2023, 2024}
 assert set(validation['target_year']) == {2025}
 
-# 2. Historical features and next-week target.
 numbers = ['attacks_7d', 'attacks_30d', 'attacks_90d',
            'attacks_120d', 'attacks_365d', 'days_since_last_post']
 features = numbers + ['campaign_status']
@@ -27,13 +24,11 @@ y_train = train['posting_next_week'].astype(int)
 X_val = validation[features]
 y_val = validation['posting_next_week'].astype(int)
 
-# 3. Give the rare posting class greater importance, using TRAINING counts only.
 class_counts = y_train.value_counts()
 weights_by_class = {label: len(y_train) / (2 * count)
                     for label, count in class_counts.items()}
 sample_weights = y_train.map(weights_by_class).to_numpy()
 
-# 4. Train boosting model; preprocessing is fitted only on training rows.
 preprocessing = ColumnTransformer([
     ('numbers', StandardScaler(), numbers),
     ('status', OneHotEncoder(handle_unknown='ignore'), ['campaign_status'])
@@ -47,7 +42,6 @@ model = Pipeline([
 ])
 model.fit(X_train, y_train, boosting__sample_weight=sample_weights)
 
-# 5. Evaluate with the same fixed 0.50 threshold used in E1-E3.
 probability = model.predict_proba(X_val)[:, 1]
 predicted = (probability >= 0.50).astype(int)
 tn, fp, fn, tp = confusion_matrix(y_val, predicted, labels=[0, 1]).ravel()
@@ -63,7 +57,6 @@ results = {
     'roc_auc': roc_auc_score(y_val, probability)
 }
 
-# 6. Convert predicted non-posting into the original five campaign statuses.
 future_days = validation['days_since_last_post'].to_numpy() + 7
 no_post_status = np.select(
     [future_days <= 30, future_days <= 90, future_days <= 365],
@@ -75,7 +68,6 @@ results['five_status_macro_f1'] = f1_score(
     validation['next_week_status'], predicted_status, average='macro', zero_division=0
 )
 
-# 7. Save reproducible outputs.
 out = folder / 'E3_results'
 out.mkdir(exist_ok=True)
 pd.DataFrame([results]).to_csv(out / 'metrics.csv', index=False)

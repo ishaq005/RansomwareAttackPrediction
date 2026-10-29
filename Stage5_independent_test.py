@@ -1,8 +1,3 @@
-"""Stage 5: one-time independent evaluation of frozen E1 at threshold 0.2300686.
-Run in VS Code with Run Python File. No command line arguments.
-If E1_model.joblib is missing, regenerate E1 using the original 2022-24
-training recipe (never use validation/test data for fitting).
-"""
 from pathlib import Path
 import json
 import numpy as np
@@ -15,7 +10,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (confusion_matrix, precision_score, recall_score,
     f1_score, accuracy_score, average_precision_score, roc_auc_score)
 
-# 1. Load the untouched 2026 test data and frozen E6 decision.
 folder = Path(__file__).resolve().parent
 selection = json.loads((folder / "E6_selection.json").read_text())
 assert selection["selected_experiment"] == "E1_Standard_Logistic_Regression"
@@ -24,13 +18,11 @@ test = pd.read_csv(folder / "test.csv")
 assert len(test) == 6302 and test["posting_next_week"].sum() == 200
 assert test["target_year"].eq(2026).all()
 
-# 2. Use exactly the E1 features. The future outcome is NOT a feature.
 numbers = ["attacks_7d", "attacks_30d", "attacks_90d", "attacks_120d",
            "attacks_365d", "days_since_last_post"]
 features = numbers + ["campaign_status"]
 assert test[features].notna().all().all()
 
-# 3. Load frozen E1 model. Regenerate from historical training ONLY if absent.
 model_file = folder / "E1_model.joblib"
 if model_file.exists():
     model = load(model_file)
@@ -48,12 +40,10 @@ else:
     model.fit(train[features], train["posting_next_week"].astype(int))
     dump(model, model_file)
 
-# 4. Apply the validation-selected threshold WITHOUT changing it.
 actual = test["posting_next_week"].astype(int).to_numpy()
 probability = model.predict_proba(test[features])[:, 1]
 predicted = (probability >= threshold).astype(int)
 
-# 5. Compare with the no-posting E0 baseline.
 def evaluate(name, predictions, scores):
     tn, fp, fn, tp = confusion_matrix(actual, predictions, labels=[0, 1]).ravel()
     return {"model": name, "TP": int(tp), "FP": int(fp),
@@ -68,7 +58,6 @@ def evaluate(name, predictions, scores):
 rows = [evaluate("E0_no_posting_baseline", np.zeros(len(test), dtype=int), np.zeros(len(test))),
         evaluate("E1_Standard_Logistic_Regression", predicted, probability)]
 
-# 6. Derive next week's five-status prediction using the original recency rules.
 future_days = test["days_since_last_post"].to_numpy() + 7
 no_post_status = np.select([future_days <= 30, future_days <= 90,
                             future_days <= 365],
@@ -82,7 +71,6 @@ for row, binary in zip(rows, [np.zeros(len(test), dtype=int), predicted]):
                                            labels=labels, average="macro",
                                            zero_division=0)
 
-# 7. Save results. Do not use these results to change the threshold.
 output = folder / "results"
 output.mkdir(exist_ok=True)
 pd.DataFrame(rows).to_csv(output / "test_metrics.csv", index=False)

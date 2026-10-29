@@ -1,4 +1,3 @@
-"""E7: Balanced RBF Support Vector Machine. Run Python File in VS Code."""
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -11,12 +10,10 @@ from sklearn.metrics import (confusion_matrix, precision_score, recall_score,
                              f1_score, accuracy_score, average_precision_score,
                              roc_auc_score)
 
-# 1. Load historical training and future validation data (never load 2026 test).
 folder = Path(__file__).resolve().parent
 train = pd.read_csv(folder / 'train.csv')
 valid = pd.read_csv(folder / 'validation.csv')
 
-# 2. Choose information known at the prediction cutoff.
 numeric = ['attacks_7d', 'attacks_30d', 'attacks_90d',
            'attacks_120d', 'attacks_365d', 'days_since_last_post']
 category = ['campaign_status']
@@ -38,13 +35,11 @@ for data, year_min, year_max in [(train, 2022, 2024), (valid, 2025, 2025)]:
 X_train, y_train = train[features], train['posting_next_week'].astype(int)
 X_valid, y_valid = valid[features], valid['posting_next_week'].astype(int)
 
-# 3. Scale numeric features; encode status. Fit preprocessing on TRAIN only.
 preprocess = ColumnTransformer([
     ('numbers', StandardScaler(), numeric),
     ('status', OneHotEncoder(handle_unknown='ignore'), category)
 ])
 
-# 4. Train an RBF SVM with balanced class weights.
 model = Pipeline([
     ('preprocess', preprocess),
     ('svm', SVC(kernel='rbf', C=1.0, gamma='scale',
@@ -52,11 +47,9 @@ model = Pipeline([
 ])
 model.fit(X_train, y_train)
 
-# 5. Predict probabilities, then apply the SAME 0.50 rule as E1-E5.
 probability = model.predict_proba(X_valid)[:, 1]
 predicted = (probability >= 0.50).astype(int)
 
-# 6. Evaluate against actual 2025 outcomes.
 tn, fp, fn, tp = confusion_matrix(y_valid, predicted, labels=[0, 1]).ravel()
 metrics = {
     'model': 'E4_balanced_RBF_SVM',
@@ -69,7 +62,6 @@ metrics = {
     'ROC_AUC': roc_auc_score(y_valid, probability)
 }
 
-# 7. Recover five-status predictions using the existing recency rules.
 days_next_week = valid['days_since_last_post'].to_numpy() + 7
 five_status = np.where(predicted == 1, 'attack_week',
     np.select([days_next_week <= 30, days_next_week <= 90,
@@ -81,7 +73,6 @@ metrics['five_status_macro_F1'] = f1_score(
     labels=['attack_week', 'active', 'declining', 'dormant', 'inactive'],
     average='macro', zero_division=0)
 
-# 8. Save outputs for transparent comparison with E1-E5.
 output = folder / 'E4_results'
 output.mkdir(exist_ok=True)
 pd.DataFrame([metrics]).to_csv(output / 'E4_metrics.csv', index=False)
